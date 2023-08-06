@@ -53,7 +53,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ENV APT_OPTIONS=' -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true --allow-unauthenticated '
 # https://blog.csdn.net/weixin_62808713/article/details/130372239
-echo 'deb http://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free' > /etc/apt/sources.list
+RUN echo 'deb http://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free' > /etc/apt/sources.list
 
 # #####################################################
 # the desktop environment to use
