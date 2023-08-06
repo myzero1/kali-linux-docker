@@ -45,6 +45,15 @@ ARG UPASS
 ENV DEBIAN_FRONTEND noninteractive
 
 # #####################################################
+# Fix GPG errors, see https://superuser.com/questions/1644520/apt-get-update-issue-in-kali
+# RUN apt -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true update && apt-get -y install wget &&\
+#   wget http://http.kali.org/kali/pool/main/k/kali-archive-keyring/kali-archive-keyring_2022.1_all.deb &&\
+#   dpkg -i kali-archive-keyring_2022.1_all.deb && rm kali-archive-keyring_2022.1_all.deb
+# #####################################################
+
+ENV APT_OPTIONS=' -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true --allow-unauthenticated '
+
+# #####################################################
 # the desktop environment to use
 # if it is null then it will default to xfce
 # valid choices are 
@@ -76,10 +85,10 @@ ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 # install packages that we always want
 # #####################################################
 
-RUN apt update -q --fix-missing  
-RUN apt upgrade -y
-RUN apt -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh-server ${DESKTOP_PKG}
-RUN apt -y install locales
+RUN apt ${APT_OPTIONS} update -q --fix-missing  
+RUN apt ${APT_OPTIONS} upgrade -y
+RUN apt ${APT_OPTIONS} -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh-server ${DESKTOP_PKG}
+RUN apt ${APT_OPTIONS} -y install locales
 RUN sed -i s/^#\ en_US.UTF-8\ UTF-8/en_US.UTF-8\ UTF-8/ /etc/locale.gen
 RUN locale-gen
 
@@ -95,7 +104,7 @@ RUN chmod 755 /startkali.sh
 # Install the Kali Packages
 # #####################################################
 
-RUN apt -y install --no-install-recommends ${KALI_PKG}
+RUN apt ${APT_OPTIONS} -y install --no-install-recommends ${KALI_PKG}
 
 # #####################################################
 # create the non-root kali user
@@ -134,7 +143,7 @@ RUN if [ -e /etc/xdg/xfce4/panel/default.xml ] ; \
 
 RUN if [ "xx2go" = "x${REMOTE_ACCESS}" ]  ; \
     then \
-        apt -y install --no-install-recommends x2goserver ; \
+        apt ${APT_OPTIONS} -y install --no-install-recommends x2goserver ; \
         echo "/etc/init.d/x2goserver start" >> /startkali.sh ; \
     fi
 
@@ -147,7 +156,7 @@ RUN if [ "xx2go" = "x${REMOTE_ACCESS}" ]  ; \
 
 RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
     then \
-            apt -y install --no-install-recommends xorg xorgxrdp xrdp ; \
+            apt ${APT_OPTIONS} -y install --no-install-recommends xorg xorgxrdp xrdp ; \
             echo "rm -rf /var/run/xrdp >/dev/null 2>&1" >> /startkali.sh ; \
             echo "/etc/init.d/xrdp start" >> /startkali.sh ; \
             sed -i s/^port=3389/port=${RDP_PORT}/ /etc/xrdp/xrdp.ini ; \
@@ -177,7 +186,7 @@ RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
 
 RUN if [ "xvnc" = "x${REMOTE_ACCESS}" ] ; \
     then \
-        apt -y install --no-install-recommends tigervnc-standalone-server tigervnc-tools; \
+        apt ${APT_OPTIONS} -y install --no-install-recommends tigervnc-standalone-server tigervnc-tools; \
         echo "/usr/libexec/tigervncsession-start :${VNC_DISPLAY} " >> /startkali.sh ; \
         echo "echo -e '${UPASS}' | vncpasswd -f >/home/${UNAME}/.vnc/passwd" >> /startkali.sh  ;\
         echo "while true; do sudo -u ${UNAME} vncserver -fg -v ; done" >> /startkali.sh ; \
