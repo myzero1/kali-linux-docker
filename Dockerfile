@@ -89,7 +89,12 @@ ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 
 RUN apt-get ${APT_OPTIONS} update -q --fix-missing  
 RUN apt-get ${APT_OPTIONS} upgrade -y
-RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh-server ${DESKTOP_PKG}
+# RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends sudo wget curl dbus-x11 xinit openssh-server ${DESKTOP_PKG}
+RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends sudo wget curl;exit 0
+RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends dbus-x11;exit 0
+RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends xinit;exit 0
+RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends openssh-server;exit 0
+RUN apt-get ${APT_OPTIONS} -y install --no-install-recommends ${DESKTOP_PKG};exit 0
 RUN apt-get ${APT_OPTIONS} -y install locales
 RUN sed -i s/^#\ en_US.UTF-8\ UTF-8/en_US.UTF-8\ UTF-8/ /etc/locale.gen
 RUN locale-gen
